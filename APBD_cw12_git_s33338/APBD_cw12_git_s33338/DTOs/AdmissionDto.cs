@@ -1,6 +1,6 @@
 ﻿namespace APBD_cw12_git_s33338.DTOs;
 
-public class AdmissionsDto
+public class AdmissionDto
 {
     public int  Id { get; set; }
     public DateTime AdmissionDate { get; set; }

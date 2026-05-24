@@ -7,6 +7,6 @@ public class PatientDto
     public string LastName { get; set; } = String.Empty;
     public int Age { get; set; }
     public string Sex {get; set; } = String.Empty;
-    public List<AdmissionsDto> Admissions { get; set; } = [];
-    public List<BedAssignmentDto> BedAssignment { get; set; } = [];
+    public List<AdmissionDto> Admissions { get; set; } = [];
+    public List<BedAssignmentDto> BedAssignments { get; set; } = [];
 }
