@@ -1,5 +1,6 @@
 ﻿using APBD_cw12_git_s33338.Data;
 using APBD_cw12_git_s33338.DTOs;
+using APBD_cw12_git_s33338.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace APBD_cw12_git_s33338.Services;
@@ -78,5 +79,61 @@ public class DbService : IDbService
                 }).ToList(),
             }).ToListAsync();
         return res;
+    }
+
+    public async Task AddBedAssignment(string pesel, CreateBedAssignmentDto dto)
+    {
+        if (dto.To.HasValue && dto.To <= dto.From)
+        {
+            throw new Exception("Data końcowa musi być późniejsza niż data początkowa");
+        }
+        
+        var patientExists = await _context.Patients.AnyAsync(p => p.Pesel == pesel);
+
+        if (!patientExists)
+        {
+            throw new Exception("Pacjent o podanym numerze PESEL nie istnieje");
+        }
+        
+        var bedTypeExists= await _context.BedTypes.AnyAsync(e=>e.Name==dto.BedType);
+
+        if (!bedTypeExists)
+        {
+            throw new Exception("Podany typ łóżka nie istnieje");
+        }
+        
+        var wardExists= await _context.Wards.AnyAsync(e => e.Name == dto.Ward);
+
+        if (!wardExists)
+        {
+            throw new Exception("Podany oddział nie istnieje");
+        }
+        
+        var bed = await _context.Beds
+            .Where(e=>e.BedType.Name==dto.BedType && 
+                      e.Room.Ward.Name==dto.Ward)
+            .Where(e=>
+                !e.BedAssignments.Any(ba=>
+                    (!dto.To.HasValue || ba.From<dto.To.Value) && 
+                    (!ba.To.HasValue || dto.From < ba.To.Value)
+                
+                ))
+            .FirstOrDefaultAsync();
+
+        if (bed == null)
+        {
+            throw new Exception("Brak wolnego łóżka o podanym typie na podanym oddziale w wybranym terminie");
+        }
+
+        var bedAssignment = new BedAssignment
+        {
+            PatientPesel = pesel,
+            BedId = bed.Id,
+            From = dto.From,
+            To = dto.To,
+        };
+        
+        _context.BedAssignments.Add(bedAssignment);
+        await _context.SaveChangesAsync();
     }
 }

@@ -1,4 +1,5 @@
-﻿using APBD_cw12_git_s33338.Exceptions;
+﻿using APBD_cw12_git_s33338.DTOs;
+using APBD_cw12_git_s33338.Exceptions;
 using APBD_cw12_git_s33338.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +27,23 @@ public class PatientController : ControllerBase
         catch (NotFoundException e)
         {
             return NotFound(e.Message);
+        }
+    }
+
+    [HttpPost("{pesel}/bedassignments")]
+    public async Task<IActionResult> AddBedAssignment(string pesel, CreateBedAssignmentDto dto)
+    {
+        try
+        {
+            await _dbService.AddBedAssignment(pesel, dto);
+            return Created();
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(new
+            {
+                message = e.Message
+            });
         }
     }
 }
