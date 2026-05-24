@@ -1,4 +1,5 @@
 using APBD_cw12_git_s33338.Data;
+using APBD_cw12_git_s33338.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,8 @@ builder.Services.AddDbContext<HospitalContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Services.AddScoped<IDbService, DbService>();
 
 var app = builder.Build();
 
